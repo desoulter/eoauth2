@@ -17,7 +17,8 @@ access_token(Host, Path, Iss, Scope, Aud, EncodedPrivateKey) ->
     Uri = <<"grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=">>,
     Json = make_request(post, Host, Path,
                         [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}],
-                        << Uri/binary, Jwt/binary>>, 200),
+                        << Uri/binary, Jwt/binary>>),
+    lager:info("generated: ~p~n", [Json]),
     case proplists:get_value(<<"access_token">>, Json) of
         undefined ->
             undefined;
@@ -56,10 +57,11 @@ compute_signature(Header, ClaimSet, #'RSAPrivateKey'{publicExponent=Exponent
                                                     ,privateExponent=PrivateExponent}) ->
     base64:encode(crypto:sign(rsa, sha256, <<Header/binary, ".", ClaimSet/binary>>, [Exponent, Modulus, PrivateExponent])).
 
-make_request(Method, Url, Path, Headers, Body, ExpectedStatus) ->
+make_request(Method, Url, Path, Headers, Body) ->
     {ok, Status, _RespHeaders, Client} = hackney:request(Method, <<Url/binary, Path/binary>>,
                                                                  Headers,
                                                                  Body, []),
     lager:info("at=make_request status=~p", [Status]),
     {ok, Result} = hackney:body(Client),
     jsx:decode(Result).
+
