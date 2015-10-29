@@ -61,5 +61,5 @@ make_request(Method, Url, Path, Headers, Body, ExpectedStatus) ->
                                                                  Headers,
                                                                  Body, []),
     lager:info("at=make_request status=~p", [Status]),
-    {ok, Result, _Client1} = hackney:body(Client),
+    {ok, Result} = hackney:body(Client),
     jsx:decode(Result).
