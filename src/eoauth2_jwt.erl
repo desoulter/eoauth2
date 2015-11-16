@@ -27,7 +27,7 @@ access_token(Host, Path, Iss, Scope, Aud, EncodedPrivateKey) ->
     end.
 
 jwt(Iss, Scope, Aud, EncodedPrivateKey) ->
-    [PemEntry] = public_key:pem_decode(EncodedPrivateKey),
+    [PemEntry|_] = public_key:pem_decode(EncodedPrivateKey),
     PrivateKey = public_key:pem_entry_decode(PemEntry),
 
     EncodedJWTHeader = encode(jwt_header()),
